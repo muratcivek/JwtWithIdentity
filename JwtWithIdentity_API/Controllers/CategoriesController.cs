@@ -1,0 +1,21 @@
+﻿using JwtWithIdentity_API.Context;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace JwtWithIdentity_API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [Authorize]
+    public class CategoriesController(AppDbContext _context) : ControllerBase
+    {
+        [HttpGet]
+        public async Task<IActionResult> GetCategories()
+        {
+            var categories = await _context.Categories.ToListAsync();
+            return Ok(categories);
+        }
+    }
+}
