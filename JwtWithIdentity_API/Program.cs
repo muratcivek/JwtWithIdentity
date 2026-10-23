@@ -5,6 +5,7 @@ using JwtWithIdentity_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,7 +44,8 @@ builder.Services.AddAuthentication(config =>
         ValidIssuer = jwtOptions.Issuer,
         ValidAudience = jwtOptions.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtOptions.Key)),
-        ClockSkew = TimeSpan.Zero // Token süresinin bitişine karşılık gelen tolerans süresi
+        ClockSkew = TimeSpan.Zero, // Token süresinin bitişine karşılık gelen tolerans süresi
+        RoleClaimType = ClaimTypes.Role
     };
 });
 

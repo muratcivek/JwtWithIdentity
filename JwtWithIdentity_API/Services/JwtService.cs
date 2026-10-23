@@ -1,8 +1,10 @@
 ﻿using JwtWithIdentity_API.Entities;
 using JwtWithIdentity_API.Options;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace JwtWithIdentity_API.Services
@@ -10,9 +12,11 @@ namespace JwtWithIdentity_API.Services
     public class JwtService : IJwtService
     {
         private readonly JwtOptions _jwtOptions;
-        public JwtService(IOptions<JwtOptions> jwtOptions)
+        private readonly UserManager<AppUser> _userManager;
+        public JwtService(IOptions<JwtOptions> jwtOptions, UserManager<AppUser> userManager)
         {
             _jwtOptions = jwtOptions.Value;
+            _userManager = userManager;
         }
 
         public Task<string> GenerateTokenAsync(AppUser user)
@@ -25,6 +29,14 @@ namespace JwtWithIdentity_API.Services
             };
 
             //kullanıcıya ait rolleri çekip claime ekleyeceğiz.
+
+            var userRoles = _userManager.GetRolesAsync(user).Result;
+
+            foreach (var role in userRoles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
 
             SymmetricSecurityKey symmetricSecurityKey = new(Encoding.UTF8.GetBytes(_jwtOptions.Key));
 
