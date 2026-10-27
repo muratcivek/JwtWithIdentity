@@ -1,16 +1,20 @@
 ﻿using JwtWithIdentity_API.DTOs.UserDto;
 using JwtWithIdentity_API.Entities;
+using JwtWithIdentity_API.Options;
 using JwtWithIdentity_API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace JwtWithIdentity_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController(UserManager<AppUser> _userManager, IJwtService _jwtService) : ControllerBase
+    public class UsersController(UserManager<AppUser> _userManager, IJwtService _jwtService, IOptions<JwtOptions> jwtOptions) : ControllerBase
     {
+        private readonly JwtOptions _jwtOptions = jwtOptions.Value;
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDto model)
         {
@@ -44,7 +48,11 @@ namespace JwtWithIdentity_API.Controllers
 
             var token = await _jwtService.GenerateTokenAsync(user);
 
-            return Ok(new { Token = token });
+            return Ok(new 
+            {
+                Token = token,
+                Expiration = DateTime.UtcNow.AddMinutes(_jwtOptions.ExpireMinutes)
+            });
         }
     }
 }

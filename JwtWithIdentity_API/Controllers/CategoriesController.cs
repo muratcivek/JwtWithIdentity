@@ -8,7 +8,7 @@ namespace JwtWithIdentity_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [Authorize]
     public class CategoriesController(AppDbContext _context) : ControllerBase
     {
         [HttpGet]
