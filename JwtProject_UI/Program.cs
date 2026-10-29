@@ -1,4 +1,7 @@
+using JwtProject_UI.Handlers;
+using JwtProject_UI.Options;
 using JwtProject_UI.Services.Categories;
+using JwtProject_UI.Services.Tokens;
 using JwtProject_UI.Services.Users;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -8,14 +11,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<JwtTokenHandler>();
+
+builder.Services.Configure<ApiOptions>(builder.Configuration.GetSection(nameof(ApiOptions)));
+
+var apiOptions = builder.Configuration.GetSection(nameof(ApiOptions)).Get<ApiOptions>();
+
 builder.Services.AddHttpClient<IUserService, UserService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7000/api/");
-}); 
+    client.BaseAddress = new Uri(apiOptions.BaseAddress);
+});
 builder.Services.AddHttpClient<ICategoryService, CategoryService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7000/api/");
-});
+    client.BaseAddress = new Uri(apiOptions.BaseAddress);
+}).AddHttpMessageHandler<JwtTokenHandler>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
